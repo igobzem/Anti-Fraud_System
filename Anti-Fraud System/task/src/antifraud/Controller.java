@@ -14,26 +14,43 @@ public class Controller {
     private UserRepository userRepo;
     @Autowired
     PasswordEncoder encoder;
+    @Autowired
+    TransactionService transactionService;
 
     @PostMapping("/api/antifraud/transaction")
     public ResponseEntity makePurchase(@RequestBody Map<String, String> map) {
-        String str = map.get("amount");
-        Long amount;
-        try {
-            amount = Long.parseLong(str);
-        } catch (NumberFormatException e) {
-            amount = 0L;
-        }
-        if (amount <= 0) {
-            return new ResponseEntity(Map.of("amount", amount), HttpStatus.BAD_REQUEST);
-        } else if (amount <= 200) {
-            return new ResponseEntity(Map.of("result", "ALLOWED"), HttpStatus.OK);
-        } else if (amount <= 1500) {
-            return new ResponseEntity(Map.of("result", "MANUAL_PROCESSING"), HttpStatus.OK);
-        }
-        return new ResponseEntity(Map.of("result", "PROHIBITED"), HttpStatus.OK);
+        return transactionService.makePurchase(map);
     }
 
+    @PostMapping("/api/antifraud/suspicious-ip")
+    public ResponseEntity addSuspiciousIp(@RequestBody Map<String, Object> map) {
+        return transactionService.addSuspiciousIp(map);
+    }
+
+    @GetMapping("/api/antifraud/suspicious-ip")
+    public ResponseEntity getSuspiciousIp() {
+        return transactionService.getSuspiciousIp();
+    }
+
+    @DeleteMapping("/api/antifraud/suspicious-ip/{ip}")
+    public ResponseEntity deleteSuspiciousIp(@PathVariable String ip) {
+        return transactionService.deleteSuspiciousIp(ip);
+    }
+
+    @PostMapping("/api/antifraud/stolencard")
+    public ResponseEntity addStolenCard(@RequestBody Map<String, Object> map) {
+        return transactionService.addStolenCard(map);
+    }
+
+    @GetMapping("/api/antifraud/stolencard")
+    public ResponseEntity getStolenCards() {
+        return transactionService.getStolenCards();
+    }
+
+    @DeleteMapping("/api/antifraud/stolencard/{number}")
+    public ResponseEntity deleteStolenCard(@PathVariable String number) {
+        return transactionService.deleteStolenCard(number);
+    }
 
     @PostMapping("/api/auth/user")
     public ResponseEntity auth(@RequestBody User user) {
